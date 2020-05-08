@@ -44,7 +44,7 @@ void JellyButtonBox::startAnimation1(QPoint start_pos, QPoint end_pos)
 void JellyButtonBox::startAnimation2()
 {
     QRect rect(geometry().center().x() - total_width / 2, geometry().top(), total_width, height());
-    int dur = 500;
+    int dur = 600;
 
     QPropertyAnimation* geo_ani = new QPropertyAnimation(this, "geometry");
     geo_ani->setStartValue(geometry());
@@ -52,6 +52,12 @@ void JellyButtonBox::startAnimation2()
     geo_ani->setEasingCurve(QEasingCurve::OutBack);
     geo_ani->setDuration(dur);
     geo_ani->start();
+
+    /*QPropertyAnimation* angle_ani = new QPropertyAnimation(this, "qie_angle");
+    angle_ani->setStartValue(90);
+    angle_ani->setEndValue(0);
+    angle_ani->setDuration(dur);
+    angle_ani->start();*/
 
     QPropertyAnimation* step2_ani = new QPropertyAnimation(this, "step2");
     step2_ani->setStartValue(0);
@@ -86,7 +92,7 @@ void JellyButtonBox::paintEvent(QPaintEvent *)
         fg_path.addEllipse(width()/2-real_radius, height()/2-real_radius, real_radius*2, real_radius*2);
         painter.fillPath(fg_path, fg_color);
     }
-    else if (expd_prop <= 100) // 圆角矩形
+    else if (expd_prop < 100 || true) // 圆角矩形
     {
         QPainterPath bg_path;
         bg_path.addRoundedRect(border_size, border_size, width()-border_size*2, height() - border_size*2, outer_radius, outer_radius);
@@ -104,25 +110,12 @@ void JellyButtonBox::paintEvent(QPaintEvent *)
                 mid(width() / 2, ctry),
                 right(width() - border_size - outer_radius, ctry);
 
-        /*// 矩形贝塞尔算法
-        fg_path.moveTo(mid.x(), mid.y()-btn_radius);
-        fg_path.quadTo(QPoint((left.x()+mid.x())/2, ctry), QPoint(left.x(), left.y()-btn_radius));
-        fg_path.lineTo(left);
-        fg_path.arcTo(QRect(left.x()-btn_radius, left.y()-btn_radius, btn_radius*2, btn_radius*2), 90, 180);
-        fg_path.quadTo(QPoint((left.x()+mid.x())/2, ctry), QPoint(mid.x(), mid.y()+btn_radius));
-        fg_path.quadTo(QPoint((mid.x()+right.x())/2, ctry), QPoint(right.x(), right.y()+btn_radius));
-        fg_path.lineTo(right);
-        fg_path.arcTo(QRect(right.x()-btn_radius, right.y()-btn_radius, btn_radius*2, btn_radius*2), 270, 180);
-        fg_path.quadTo(QPoint((mid.x()+right.x())/2, ctry), QPoint(mid.x(), mid.y()-btn_radius));*/
-
         // 切线贝塞尔算法
-
         int delta_ol_om = mid.x()-left.x(); // 圆心之间的距离
-//        double angle = atan(btn_radius / (double)delta_ol_om); // 角度（弧度制）
         double prop = delta_ol_om/(double)(btn_spacing+btn_radius*2);
         if (prop > 1) // 反弹效果时会变成负的
             prop = 1;
-        double angle = PI/2 - (PI/2) * prop; // 切线角度
+        double angle = PI/2 - (PI/2) * prop*prop; // 切线角度
 
         int qie_delta_x = btn_radius * cos(angle);
         int qie_delta_y = btn_radius * sin(angle);
@@ -130,8 +123,11 @@ void JellyButtonBox::paintEvent(QPaintEvent *)
         QPoint qie_um(mid.x() - qie_delta_x, mid.y() - qie_delta_y);
         QPoint qie_dl(left.x() + qie_delta_x,left.y() + qie_delta_y);
         QPoint qie_dm(mid.x() - qie_delta_x, mid.y() + qie_delta_y);
-        int ctrl_delta_x = btn_radius * (0.5-abs(prop-0.5)) * sin(angle);
-        int ctrl_delta_y = btn_radius * (0.5-abs(prop-0.5)) * cos(angle);
+
+        int dis = qie_um.x() - qie_ul.x();
+        int dis_calc = dis * sin(angle) * cos(angle);
+        int ctrl_delta_x = dis_calc * cos(angle);
+        int ctrl_delta_y = dis_calc * sin(angle);
         QPoint ctrl_uml = qie_um + QPoint(-ctrl_delta_x, ctrl_delta_y);
         QPoint ctrl_ulm = qie_ul + QPoint(ctrl_delta_x, ctrl_delta_y);
         QPoint ctrl_dlm = qie_dl + QPoint(ctrl_delta_x, -ctrl_delta_y);
@@ -187,6 +183,11 @@ void JellyButtonBox::setStep2(int p)
     expd_prop = p;
 }
 
+void JellyButtonBox::setQieAngle(int a)
+{
+    qie_angle = a;
+}
+
 void JellyButtonBox::setStep3(int p)
 {
     icon_prop = p;
@@ -200,6 +201,11 @@ int JellyButtonBox::getStep1()
 int JellyButtonBox::getStep2()
 {
     return expd_prop;
+}
+
+int JellyButtonBox::getQieAngle()
+{
+    return qie_angle;
 }
 
 int JellyButtonBox::getStep3()
