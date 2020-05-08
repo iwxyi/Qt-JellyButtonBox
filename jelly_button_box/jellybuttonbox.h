@@ -41,11 +41,12 @@ private:
 private:
     QList<JellyButton*> buttons;
     int btn_radius = 32; // 按钮最大半径
-    int outer_radius = 40; // 大圆半径
+    int outer_radius = 48; // 大圆半径
     int btn_spacing = 16; // 两个按钮之间的间距
     QColor fg_color = Qt::white;
     QColor bg_color = QColor(58, 54, 94);
     int border_size = 5; // 边界阴影最大处宽度
+    int total_width = -1;
 
     int show_prop = 0; // 按钮出现 动画
     int expd_prop = 0; // 整体扩展、按钮背景撕开 动画（反弹）
