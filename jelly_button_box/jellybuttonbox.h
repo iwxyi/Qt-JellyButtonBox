@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QWidget>
 #include <QPropertyAnimation>
+#include <cmath>
 #include "jellybutton.h"
 
 class JellyButtonBox : public QWidget
@@ -42,7 +43,7 @@ private:
     QList<JellyButton*> buttons;
     int btn_radius = 32; // 按钮最大半径
     int outer_radius = 48; // 大圆半径
-    int btn_spacing = 16; // 两个按钮之间的间距
+    int btn_spacing = 32; // 两个按钮之间的间距
     QColor fg_color = Qt::white;
     QColor bg_color = QColor(58, 54, 94);
     int border_size = 5; // 边界阴影最大处宽度
