@@ -18,6 +18,9 @@ void JellyButtonBox::setButtons(QList<QPixmap> icons, QList<QString> texts)
         buttons.append(btn);
         btn->setFixedSize(btn_radius*2, btn_radius*2);
         btn->setIconColor(fg_color);
+        connect(btn, &InteractiveButtonBase::clicked, this, [=]{
+            emit signalButtonClicked(i);
+        });
         btn->hide();
     }
 
@@ -46,6 +49,9 @@ void JellyButtonBox::setButtons(QList<QIcon> icons, QList<QString> texts)
         buttons.append(btn);
         btn->setFixedSize(btn_radius*2, btn_radius*2);
         btn->setIconColor(fg_color);
+        connect(btn, &InteractiveButtonBase::clicked, this, [=]{
+            emit signalButtonClicked(i);
+        });
         btn->hide();
     }
 
@@ -239,7 +245,9 @@ void JellyButtonBox::paintEvent(QPaintEvent *)
         fg_path.arcTo(mid.x()-radius, mid.y()-radius, radius*2, radius*2, angle, degle);
         fg_path.lineTo(mid.x(), mid.y()-radius);
 
-        painter.fillPath(fg_path, fg_color);
+        QColor c = fg_color;
+        c.setAlpha(qMax(c.alpha() * (100-icon_prop*2) / 100, 0));
+        painter.fillPath(fg_path, c);
     }
     else if (icon_prop < 100) // 背景收缩，图标出现
     {
@@ -253,7 +261,9 @@ void JellyButtonBox::paintEvent(QPaintEvent *)
         fg_path.addEllipse(mid.x()-radius, mid.y()-radius, radius*2, radius*2);
         fg_path.addEllipse(right.x()-radius, right.y()-radius, radius*2, radius*2);
 
-        painter.fillPath(fg_path, fg_color);
+        QColor c = fg_color;
+        c.setAlpha(qMax(c.alpha() * (100-icon_prop*2) / 100, 0));
+        painter.fillPath(fg_path, c);
     }
 
 }
@@ -283,6 +293,10 @@ void JellyButtonBox::setQieAngle(int a)
 void JellyButtonBox::setStep3(int p)
 {
     icon_prop = p;
+    foreach (auto button, buttons) {
+        button->setIconPaddingProper(p * 0.25 / 100);
+        button->update();
+    }
     update();
 }
 
