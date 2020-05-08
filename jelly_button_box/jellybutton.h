@@ -7,6 +7,7 @@ class JellyButton : public WaterCircleButton
 {
 public:
     JellyButton(QIcon ic, QWidget* parent = nullptr);
+    JellyButton(QPixmap ic, QWidget* parent = nullptr);
 };
 
 #endif // JELLYBUTTON_H

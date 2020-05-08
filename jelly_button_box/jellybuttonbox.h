@@ -17,6 +17,8 @@ class JellyButtonBox : public QWidget
 public:
     JellyButtonBox(QWidget *parent = nullptr);
 
+    void setButtons(QList<QPixmap> icons, QList<QString> texts = {});
+    void setButtons(QList<QIcon> icons, QList<QString> texts = {});
     void exec(QPoint start_pos, QPoint end_pos);
 
 private:
@@ -29,6 +31,7 @@ protected:
     void focusOutEvent(QFocusEvent *event) override;
 
 signals:
+    void signalButtonClicked(int index);
 
 public slots:
 

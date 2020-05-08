@@ -4,3 +4,8 @@ JellyButton::JellyButton(QIcon ic, QWidget *parent) : WaterCircleButton(ic, pare
 {
 
 }
+
+JellyButton::JellyButton(QPixmap ic, QWidget *parent) : WaterCircleButton(ic, parent)
+{
+
+}

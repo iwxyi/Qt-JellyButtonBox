@@ -7,6 +7,62 @@ JellyButtonBox::JellyButtonBox(QWidget *parent) : QWidget(parent)
     setFocusPolicy(Qt::StrongFocus);
 }
 
+void JellyButtonBox::setButtons(QList<QPixmap> icons, QList<QString> texts)
+{
+    int size = icons.size();
+    if (size > 3)
+        size = 3;
+    for (int i = 0; i < size; i++)
+    {
+        auto btn = new JellyButton(icons.at(i), this);
+        buttons.append(btn);
+        btn->setFixedSize(btn_radius*2, btn_radius*2);
+        btn->setIconColor(fg_color);
+        btn->hide();
+    }
+
+    int width = (btn_radius*2 + btn_spacing + outer_radius + border_size) * 2;
+    int height = outer_radius*2+border_size*2;
+    int ctry = height/2;
+    QPoint left(border_size + outer_radius, ctry),
+            mid(width / 2, ctry),
+            right(width - border_size - outer_radius, ctry);
+    if (icons.size() > 0)
+        buttons.at(0)->move(left.x()-btn_radius, left.y()-btn_radius);
+    if (icons.size() > 1)
+        buttons.at(1)->move(mid.x()-btn_radius, mid.y()-btn_radius);
+    if (icons.size() > 2)
+        buttons.at(2)->move(right.x()-btn_radius, right.y()-btn_radius);
+}
+
+void JellyButtonBox::setButtons(QList<QIcon> icons, QList<QString> texts)
+{
+    int size = icons.size();
+    if (size > 3)
+        size = 3;
+    for (int i = 0; i < size; i++)
+    {
+        auto btn = new JellyButton(icons.at(i), this);
+        buttons.append(btn);
+        btn->setFixedSize(btn_radius*2, btn_radius*2);
+        btn->setIconColor(fg_color);
+        btn->hide();
+    }
+
+    int width = (btn_radius*2 + btn_spacing + outer_radius + border_size) * 2;
+    int height = outer_radius*2+border_size*2;
+    int ctry = height/2;
+    QPoint left(border_size + outer_radius, ctry),
+            mid(width / 2, ctry),
+            right(width - border_size - outer_radius, ctry);
+    if (icons.size() > 0)
+        buttons.at(0)->move(left.x()-btn_radius, left.y()-btn_radius);
+    if (icons.size() > 1)
+        buttons.at(1)->move(mid.x()-btn_radius, mid.y()-btn_radius);
+    if (icons.size() > 2)
+        buttons.at(2)->move(right.x()-btn_radius, right.y()-btn_radius);
+}
+
 void JellyButtonBox::exec(QPoint start_pos, QPoint end_pos)
 {
     show();
@@ -84,7 +140,10 @@ void JellyButtonBox::startAnimation3()
     });
 
     // 显示按钮控件
-
+    for (int i = 0; i < buttons.size(); i++)
+    {
+        buttons.at(i)->show();
+    }
 }
 
 void JellyButtonBox::paintEvent(QPaintEvent *)
