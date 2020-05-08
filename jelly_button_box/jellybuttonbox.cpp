@@ -115,7 +115,7 @@ void JellyButtonBox::paintEvent(QPaintEvent *)
         double prop = delta_ol_om/(double)(btn_spacing+btn_radius*2);
         if (prop > 1) // 反弹效果时会变成负的
             prop = 1;
-        double angle = PI/2 - (PI/2) * prop*prop; // 切线角度
+        double angle = PI/2 - (PI/2) * prop * prop; // 切线角度
 
         int qie_delta_x = btn_radius * cos(angle);
         int qie_delta_y = btn_radius * sin(angle);
@@ -123,6 +123,10 @@ void JellyButtonBox::paintEvent(QPaintEvent *)
         QPoint qie_uml(mid.x() - qie_delta_x, mid.y() - qie_delta_y);
         QPoint qie_dlm(left.x() + qie_delta_x,left.y() + qie_delta_y);
         QPoint qie_dml(mid.x() - qie_delta_x, mid.y() + qie_delta_y);
+        QPoint qie_umr(mid.x() + qie_delta_x, mid.y() - qie_delta_y);
+        QPoint qie_urm(right.x() - qie_delta_x,right.y() - qie_delta_y);
+        QPoint qie_dmr(mid.x() + qie_delta_x, mid.y() + qie_delta_y);
+        QPoint qie_drm(right.x() - qie_delta_x,right.y() + qie_delta_y);
 
         int dis = qie_uml.x() - qie_ulm.x();
 //        int dis_calc = dis*sqrt(prop) * sin(angle) * cos(angle);
@@ -133,6 +137,10 @@ void JellyButtonBox::paintEvent(QPaintEvent *)
         QPoint ctrl_ulm = qie_ulm + QPoint(ctrl_delta_x, ctrl_delta_y);
         QPoint ctrl_dlm = qie_dlm + QPoint(ctrl_delta_x, -ctrl_delta_y);
         QPoint ctrl_dml = qie_dml + QPoint(-ctrl_delta_x, -ctrl_delta_y);
+        QPoint ctrl_umr = qie_umr + QPoint(ctrl_delta_x, ctrl_delta_y);
+        QPoint ctrl_urm = qie_urm + QPoint(-ctrl_delta_x, ctrl_delta_y);
+        QPoint ctrl_drm = qie_drm + QPoint(-ctrl_delta_x, -ctrl_delta_y);
+        QPoint ctrl_dmr = qie_dmr + QPoint(ctrl_delta_x, -ctrl_delta_y);
 
         angle = angle * 180 / PI; // 切线弧度制转角度制，用来 arcTo
         double degle = 90 - angle; // 90-切线角度
@@ -142,7 +150,11 @@ void JellyButtonBox::paintEvent(QPaintEvent *)
         fg_path.cubicTo(ctrl_uml, ctrl_ulm, qie_ulm);
         fg_path.arcTo(QRect(left.x()-btn_radius, left.y()-btn_radius, btn_radius*2, btn_radius*2), angle, 180+degle*2);
         fg_path.cubicTo(ctrl_dlm, ctrl_dml, qie_dml);
-        fg_path.arcTo(mid.x()-btn_radius, mid.y()-btn_radius, btn_radius*2, btn_radius*2, 180+angle, 180+degle);
+        fg_path.arcTo(mid.x()-btn_radius, mid.y()-btn_radius, btn_radius*2, btn_radius*2, 180+angle, degle*2);
+        fg_path.cubicTo(ctrl_dmr, ctrl_drm, qie_drm);
+        fg_path.arcTo(right.x()-btn_radius, right.y()-btn_radius, btn_radius*2, btn_radius*2, 180+angle, 180+degle*2);
+        fg_path.cubicTo(ctrl_urm, ctrl_umr, qie_umr);
+        fg_path.arcTo(mid.x()-btn_radius, mid.y()-btn_radius, btn_radius*2, btn_radius*2, angle, degle);
         fg_path.lineTo(mid.x(), mid.y()-btn_radius);
 
         painter.fillPath(fg_path, fg_color);
