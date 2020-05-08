@@ -53,25 +53,37 @@ void JellyButtonBox::startAnimation2()
     geo_ani->setDuration(dur);
     geo_ani->start();
 
-    /*QPropertyAnimation* angle_ani = new QPropertyAnimation(this, "qie_angle");
-    angle_ani->setStartValue(90);
-    angle_ani->setEndValue(0);
-    angle_ani->setDuration(dur);
-    angle_ani->start();*/
-
     QPropertyAnimation* step2_ani = new QPropertyAnimation(this, "step2");
     step2_ani->setStartValue(0);
     step2_ani->setEndValue(100);
     step2_ani->setDuration(dur);
     step2_ani->start();
+    connect(step2_ani, &QPropertyAnimation::valueChanged, this, [=](const QVariant& value){
+        if (value > 70 && icon_prop == 0)
+        {
+            icon_prop = 1;
+            startAnimation3();
+        }
+    });
     connect(step2_ani, &QPropertyAnimation::finished, this, [=]{
         expd_prop = 100;
-        startAnimation3();
+//        startAnimation3();
     });
 }
 
 void JellyButtonBox::startAnimation3()
 {
+    QPropertyAnimation* step3_ani = new QPropertyAnimation(this, "step3");
+    step3_ani->setStartValue(1);
+    step3_ani->setEndValue(100);
+    step3_ani->setDuration(270);
+    step3_ani->setEasingCurve(QEasingCurve::OutCirc);
+    step3_ani->start();
+    connect(step3_ani, &QPropertyAnimation::finished, this, [=]{
+        icon_prop = 100;
+    });
+
+    // 显示按钮控件
 
 }
 
@@ -86,18 +98,24 @@ void JellyButtonBox::paintEvent(QPaintEvent *)
         QPainterPath bg_path;
         bg_path.addEllipse(border_size, border_size, width()-border_size*2, height() - border_size*2);
         painter.fillPath(bg_path, bg_color);
+    }
+    else // 圆角矩形
+    {
+        QPainterPath bg_path;
+        bg_path.addRoundedRect(border_size, border_size, width()-border_size*2, height() - border_size*2, outer_radius, outer_radius);
+        painter.fillPath(bg_path, bg_color);
+    }
 
+    // 绘制前景
+    if (show_prop < 100)
+    {
         QPainterPath fg_path;
         int real_radius = (width()-border_size*2) * btn_radius / outer_radius / 2;
         fg_path.addEllipse(width()/2-real_radius, height()/2-real_radius, real_radius*2, real_radius*2);
         painter.fillPath(fg_path, fg_color);
     }
-    else if (expd_prop < 100 || true) // 圆角矩形
+    else if (expd_prop < 100)
     {
-        QPainterPath bg_path;
-        bg_path.addRoundedRect(border_size, border_size, width()-border_size*2, height() - border_size*2, outer_radius, outer_radius);
-        painter.fillPath(bg_path, bg_color);
-
         QPainterPath fg_path;
 //        fg_path.addRoundedRect(outer_radius-btn_radius+border_size, outer_radius-btn_radius+border_size, width()-border_size*2-(outer_radius-btn_radius)*2, height()-border_size*2-(outer_radius-btn_radius)*2, btn_radius, btn_radius);
         // 计算三个分开的曲线
@@ -116,9 +134,14 @@ void JellyButtonBox::paintEvent(QPaintEvent *)
         if (prop > 1) // 反弹效果时会变成负的
             prop = 1;
         double angle = PI/2 - (PI/2) * prop * prop; // 切线角度
+        int radius = btn_radius + (outer_radius-btn_radius)*prop/2;
+        if (icon_prop) // step3已经开始了， 半径改变
+        {
+            radius = (btn_radius + (outer_radius-btn_radius)/2) * (100-icon_prop) / 100;
+        }
 
-        int qie_delta_x = btn_radius * cos(angle);
-        int qie_delta_y = btn_radius * sin(angle);
+        int qie_delta_x = radius * cos(angle);
+        int qie_delta_y = radius * sin(angle);
         QPoint qie_ulm(left.x() + qie_delta_x,left.y() - qie_delta_y);
         QPoint qie_uml(mid.x() - qie_delta_x, mid.y() - qie_delta_y);
         QPoint qie_dlm(left.x() + qie_delta_x,left.y() + qie_delta_y);
@@ -145,37 +168,34 @@ void JellyButtonBox::paintEvent(QPaintEvent *)
         angle = angle * 180 / PI; // 切线弧度制转角度制，用来 arcTo
         double degle = 90 - angle; // 90-切线角度
 
-        fg_path.moveTo(mid.x(), mid.y()-btn_radius);
-        fg_path.arcTo(mid.x()-btn_radius, mid.y()-btn_radius, btn_radius*2, btn_radius*2, 90, degle);
+        fg_path.moveTo(mid.x(), mid.y()-radius);
+        fg_path.arcTo(mid.x()-radius, mid.y()-radius, radius*2, radius*2, 90, degle);
         fg_path.cubicTo(ctrl_uml, ctrl_ulm, qie_ulm);
-        fg_path.arcTo(QRect(left.x()-btn_radius, left.y()-btn_radius, btn_radius*2, btn_radius*2), angle, 180+degle*2);
+        fg_path.arcTo(QRect(left.x()-radius, left.y()-radius, radius*2, radius*2), angle, 180+degle*2);
         fg_path.cubicTo(ctrl_dlm, ctrl_dml, qie_dml);
-        fg_path.arcTo(mid.x()-btn_radius, mid.y()-btn_radius, btn_radius*2, btn_radius*2, 180+angle, degle*2);
+        fg_path.arcTo(mid.x()-radius, mid.y()-radius, radius*2, radius*2, 180+angle, degle*2);
         fg_path.cubicTo(ctrl_dmr, ctrl_drm, qie_drm);
-        fg_path.arcTo(right.x()-btn_radius, right.y()-btn_radius, btn_radius*2, btn_radius*2, 180+angle, 180+degle*2);
+        fg_path.arcTo(right.x()-radius, right.y()-radius, radius*2, radius*2, 180+angle, 180+degle*2);
         fg_path.cubicTo(ctrl_urm, ctrl_umr, qie_umr);
-        fg_path.arcTo(mid.x()-btn_radius, mid.y()-btn_radius, btn_radius*2, btn_radius*2, angle, degle);
-        fg_path.lineTo(mid.x(), mid.y()-btn_radius);
+        fg_path.arcTo(mid.x()-radius, mid.y()-radius, radius*2, radius*2, angle, degle);
+        fg_path.lineTo(mid.x(), mid.y()-radius);
 
         painter.fillPath(fg_path, fg_color);
     }
-    else if (icon_prop < 100)
+    else if (icon_prop < 100) // 背景收缩，图标出现
     {
-        QPainterPath bg_path;
-        bg_path.addRoundedRect(border_size, border_size, width()-border_size*2, height() - border_size*2, outer_radius, outer_radius);
-        painter.fillPath(bg_path, bg_color);
-
         QPainterPath fg_path;
-//        fg_path.addRoundedRect(outer_radius-btn_radius+border_size, outer_radius-btn_radius+border_size, width()-border_size*2-(outer_radius-btn_radius)*2, height()-border_size*2-(outer_radius-btn_radius)*2, btn_radius, btn_radius);
-        fg_path.moveTo(width()/2, height()/2);
-        fg_path.arcTo(QRect(width()/2-20, height()/2-20, 40, 40), 90, 180);
+        int ctry = height()/2;
+        QPoint left(border_size + outer_radius, ctry),
+                mid(width() / 2, ctry),
+                right(width() - border_size - outer_radius, ctry);
+        int radius = (btn_radius + (outer_radius-btn_radius)/2) * (100-icon_prop) / 100; // 应该的半径
+        fg_path.addEllipse(left.x()-radius, left.y()-radius, radius*2, radius*2);
+        fg_path.addEllipse(mid.x()-radius, mid.y()-radius, radius*2, radius*2);
+        fg_path.addEllipse(right.x()-radius, right.y()-radius, radius*2, radius*2);
+
         painter.fillPath(fg_path, fg_color);
-
-
     }
-
-    // 绘制前景
-
 
 }
 
@@ -204,6 +224,7 @@ void JellyButtonBox::setQieAngle(int a)
 void JellyButtonBox::setStep3(int p)
 {
     icon_prop = p;
+    update();
 }
 
 int JellyButtonBox::getStep1()
