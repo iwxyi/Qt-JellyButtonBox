@@ -23,19 +23,6 @@ void JellyButtonBox::setButtons(QList<QPixmap> icons, QList<QString> texts)
         });
         btn->hide();
     }
-
-    int width = (btn_radius*2 + btn_spacing + outer_radius + border_size) * 2;
-    int height = outer_radius*2+border_size*2;
-    int ctry = height/2;
-    QPoint left(border_size + outer_radius, ctry),
-            mid(width / 2, ctry),
-            right(width - border_size - outer_radius, ctry);
-    if (icons.size() > 0)
-        buttons.at(0)->move(left.x()-btn_radius, left.y()-btn_radius);
-    if (icons.size() > 1)
-        buttons.at(1)->move(mid.x()-btn_radius, mid.y()-btn_radius);
-    if (icons.size() > 2)
-        buttons.at(2)->move(right.x()-btn_radius, right.y()-btn_radius);
 }
 
 void JellyButtonBox::setButtons(QList<QIcon> icons, QList<QString> texts)
@@ -54,19 +41,6 @@ void JellyButtonBox::setButtons(QList<QIcon> icons, QList<QString> texts)
         });
         btn->hide();
     }
-
-    int width = (btn_radius*2 + btn_spacing + outer_radius + border_size) * 2;
-    int height = outer_radius*2+border_size*2;
-    int ctry = height/2;
-    QPoint left(border_size + outer_radius, ctry),
-            mid(width / 2, ctry),
-            right(width - border_size - outer_radius, ctry);
-    if (icons.size() > 0)
-        buttons.at(0)->move(left.x()-btn_radius, left.y()-btn_radius);
-    if (icons.size() > 1)
-        buttons.at(1)->move(mid.x()-btn_radius, mid.y()-btn_radius);
-    if (icons.size() > 2)
-        buttons.at(2)->move(right.x()-btn_radius, right.y()-btn_radius);
 }
 
 void JellyButtonBox::exec(QPoint start_pos, QPoint end_pos)
@@ -246,7 +220,7 @@ void JellyButtonBox::paintEvent(QPaintEvent *)
         fg_path.lineTo(mid.x(), mid.y()-radius);
 
         QColor c = fg_color;
-        c.setAlpha(qMax(c.alpha() * (100-icon_prop*2) / 100, 0));
+        c.setAlpha(qMax(c.alpha() * (100-icon_prop*6/5) / 100, 0));
         painter.fillPath(fg_path, c);
     }
     else if (icon_prop < 100) // 背景收缩，图标出现
@@ -262,7 +236,7 @@ void JellyButtonBox::paintEvent(QPaintEvent *)
         fg_path.addEllipse(right.x()-radius, right.y()-radius, radius*2, radius*2);
 
         QColor c = fg_color;
-        c.setAlpha(qMax(c.alpha() * (100-icon_prop*2) / 100, 0));
+        c.setAlpha(qMax(c.alpha() * (100-icon_prop*6/5) / 100, 0));
         painter.fillPath(fg_path, c);
     }
 
@@ -297,6 +271,18 @@ void JellyButtonBox::setStep3(int p)
         button->setIconPaddingProper(p * 0.25 / 100);
         button->update();
     }
+    int width = this->width();
+    int height = this->height();
+    int ctry = height/2;
+    QPoint left(border_size + outer_radius, ctry),
+            mid(width / 2, ctry),
+            right(width - border_size - outer_radius, ctry);
+    if (buttons.size() > 0)
+        buttons.at(0)->move(left.x()-btn_radius, left.y()-btn_radius);
+    if (buttons.size() > 1)
+        buttons.at(1)->move(mid.x()-btn_radius, mid.y()-btn_radius);
+    if (buttons.size() > 2)
+        buttons.at(2)->move(right.x()-btn_radius, right.y()-btn_radius);
     update();
 }
 
