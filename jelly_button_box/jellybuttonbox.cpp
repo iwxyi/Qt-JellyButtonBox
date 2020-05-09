@@ -7,6 +7,31 @@ JellyButtonBox::JellyButtonBox(QWidget *parent) : QWidget(parent)
     setFocusPolicy(Qt::StrongFocus);
 }
 
+void JellyButtonBox::setColors(QColor bg, QColor fg)
+{
+    bg_color = bg;
+    fg_color = fg;
+}
+
+void JellyButtonBox::setSize(int outer, int inner, int spacing)
+{
+    outer_radius = outer;
+    btn_radius = inner;
+    btn_spacing = spacing;
+}
+
+void JellyButtonBox::setButtonIcons(QString icon1, QString icon2, QString icon3)
+{
+    QList<QIcon> icons = {QIcon(icon1), QIcon(icon2), QIcon(icon3)};
+    setButtons(icons);
+}
+
+void JellyButtonBox::setButtonPixmaps(QString icon1, QString icon2, QString icon3)
+{
+    QList<QPixmap> icons = {QPixmap(icon1), QPixmap(icon2), QPixmap(icon3)};
+    setButtons(icons);
+}
+
 void JellyButtonBox::setButtons(QList<QPixmap> icons, QList<QString> texts)
 {
     int size = icons.size();
@@ -20,7 +45,11 @@ void JellyButtonBox::setButtons(QList<QPixmap> icons, QList<QString> texts)
         btn->setIconColor(fg_color);
         connect(btn, &InteractiveButtonBase::clicked, this, [=]{
             emit signalButtonClicked(i);
+            if (hide_after_click)
+                toHide();
         });
+        if (texts.size() > i)
+            btn->setToolTip(texts.at(i));
         btn->hide();
     }
 }
@@ -38,9 +67,18 @@ void JellyButtonBox::setButtons(QList<QIcon> icons, QList<QString> texts)
         btn->setIconColor(fg_color);
         connect(btn, &InteractiveButtonBase::clicked, this, [=]{
             emit signalButtonClicked(i);
+            if (hide_after_click)
+                toHide();
         });
+        if (texts.size() > i)
+            btn->setToolTip(texts.at(i));
         btn->hide();
     }
+}
+
+void JellyButtonBox::setHideAfterClick(bool h)
+{
+    hide_after_click = h;
 }
 
 void JellyButtonBox::exec(QPoint start_pos, QPoint end_pos)
@@ -312,7 +350,8 @@ void JellyButtonBox::focusOutEvent(QFocusEvent *event)
 {
     QWidget::focusOutEvent(event);
 
-    toHide();
+    if (!hiding)
+        toHide();
 }
 
 void JellyButtonBox::setStep1(int p)

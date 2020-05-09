@@ -17,8 +17,13 @@ class JellyButtonBox : public QWidget
 public:
     JellyButtonBox(QWidget *parent = nullptr);
 
+    void setColors(QColor bg, QColor fg);
+    void setSize(int outer, int inner, int spacing);
+    void setButtonIcons(QString icon1, QString icon2, QString icon3);
+    void setButtonPixmaps(QString icon1, QString icon2, QString icon3);
     void setButtons(QList<QPixmap> icons, QList<QString> texts = {});
     void setButtons(QList<QIcon> icons, QList<QString> texts = {});
+    void setHideAfterClick(bool h = true);
     void exec(QPoint start_pos, QPoint end_pos);
     void toHide();
 
@@ -57,13 +62,15 @@ private:
     QColor fg_color = Qt::white;
     QColor bg_color = QColor(58, 54, 94);
     int border_size = 4; // 边界阴影最大处宽度
-    int total_width = -1;
+    int total_width = -1; // 控件真正的总宽度
     int qie_angle = 90; // 切线
 
     int show_prop = 0; // 按钮出现 动画
     int expd_prop = 0; // 整体扩展、按钮背景撕开 动画（反弹）
     int icon_prop = 0; // 背景隐藏+按钮出现 动画
-    bool hiding = false;
+    bool hiding = false; // 是否正在隐藏（无法点击）
+
+    bool hide_after_click = true; // 按钮点击后隐藏
 };
 
 #endif // JELLYBUTTONBOX_H
