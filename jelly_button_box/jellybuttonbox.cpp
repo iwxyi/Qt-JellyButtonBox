@@ -7,8 +7,10 @@ JellyButtonBox::JellyButtonBox(QWidget *parent) : QWidget(parent)
     setFocusPolicy(Qt::StrongFocus);
 
     effect = new QGraphicsDropShadowEffect(this);
-    effect->setOffset(0,border_size);
-    effect->setColor(Qt::gray);
+    effect->setOffset(0,border_size*2);
+    QColor blur = Qt::gray;
+    blur.setAlpha(127);
+    effect->setColor(blur);
     effect->setBlurRadius(btn_radius);
     setGraphicsEffect(effect);
 }
