@@ -71,14 +71,13 @@ void JellyButtonBox::startAnimation1(QPoint start_pos, QPoint end_pos)
     geo_ani->setEndValue(rect);
     geo_ani->setEasingCurve(QEasingCurve::OutBack);
     geo_ani->setDuration(350);
-    geo_ani->start();
+    connect(geo_ani, SIGNAL(finished()), geo_ani, SLOT(deleteLater()));
     connect(geo_ani, &QPropertyAnimation::finished, this, [=]{
         total_width = (btn_radius*2 + btn_spacing + outer_radius + border_size) * 2;
         show_prop = 100;
-        QTimer::singleShot(150, [=]{
             startAnimation2();
-        });
     });
+    geo_ani->start();
 }
 
 /**
@@ -94,13 +93,14 @@ void JellyButtonBox::startAnimation2()
     geo_ani->setEndValue(rect);
     geo_ani->setEasingCurve(QEasingCurve::OutBack);
     geo_ani->setDuration(dur);
+    connect(geo_ani, SIGNAL(finished()), geo_ani, SLOT(deleteLater()));
     geo_ani->start();
 
     QPropertyAnimation* step2_ani = new QPropertyAnimation(this, "step2");
     step2_ani->setStartValue(0);
     step2_ani->setEndValue(100);
     step2_ani->setDuration(dur);
-    step2_ani->start();
+    connect(step2_ani, SIGNAL(finished()), step2_ani, SLOT(deleteLater()));
     connect(step2_ani, &QPropertyAnimation::valueChanged, this, [=](const QVariant& value){
         if (value > 64 && icon_prop == 0)
         {
@@ -111,6 +111,7 @@ void JellyButtonBox::startAnimation2()
     connect(step2_ani, &QPropertyAnimation::finished, this, [=]{
         expd_prop = 100;
     });
+    step2_ani->start();
 }
 
 void JellyButtonBox::startAnimation3()
@@ -120,10 +121,11 @@ void JellyButtonBox::startAnimation3()
     step3_ani->setEndValue(100);
     step3_ani->setDuration(270);
     step3_ani->setEasingCurve(QEasingCurve::OutCirc);
-    step3_ani->start();
+    connect(step3_ani, SIGNAL(finished()), step3_ani, SLOT(deleteLater()));
     connect(step3_ani, &QPropertyAnimation::finished, this, [=]{
         icon_prop = 100;
     });
+    step3_ani->start();
 
     // 显示按钮控件
     for (int i = 0; i < buttons.size(); i++)
@@ -139,7 +141,7 @@ void JellyButtonBox::endAnimation3()
     step3_ani->setEndValue(0);
     step3_ani->setDuration(270 * icon_prop / 100);
     step3_ani->setEasingCurve(QEasingCurve::OutCirc);
-    step3_ani->start();
+    connect(step3_ani, SIGNAL(finished()), step3_ani, SLOT(deleteLater()));
     connect(step3_ani, &QPropertyAnimation::finished, this, [=]{
         icon_prop = 0;
         foreach (auto button, buttons)
@@ -148,6 +150,7 @@ void JellyButtonBox::endAnimation3()
         }
         endAnimation2();
     });
+    step3_ani->start();
 }
 
 void JellyButtonBox::endAnimation2()
@@ -161,17 +164,19 @@ void JellyButtonBox::endAnimation2()
     geo_ani->setEndValue(rect);
     geo_ani->setEasingCurve(QEasingCurve::InBack);
     geo_ani->setDuration(dur);
+    connect(geo_ani, SIGNAL(finished()), geo_ani, SLOT(deleteLater()));
     geo_ani->start();
 
     QPropertyAnimation* step2_ani = new QPropertyAnimation(this, "step2");
     step2_ani->setStartValue(expd_prop);
     step2_ani->setEndValue(0);
     step2_ani->setDuration(dur * expd_prop / 100);
-    step2_ani->start();
+    connect(step2_ani, SIGNAL(finished()), step2_ani, SLOT(deleteLater()));
     connect(step2_ani, &QPropertyAnimation::finished, this, [=]{
         expd_prop = 100;
         endAnimation1();
     });
+    step2_ani->start();
 }
 
 void JellyButtonBox::endAnimation1()
@@ -183,6 +188,7 @@ void JellyButtonBox::endAnimation1()
     geo_ani->setEndValue(rect);
     geo_ani->setEasingCurve(QEasingCurve::OutBack);
     geo_ani->setDuration(270);
+    connect(geo_ani, SIGNAL(finished()), geo_ani, SLOT(deleteLater()));
     geo_ani->start();
 }
 
