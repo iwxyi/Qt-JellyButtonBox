@@ -20,11 +20,15 @@ public:
     void setButtons(QList<QPixmap> icons, QList<QString> texts = {});
     void setButtons(QList<QIcon> icons, QList<QString> texts = {});
     void exec(QPoint start_pos, QPoint end_pos);
+    void toHide();
 
 private:
     void startAnimation1(QPoint start_pos, QPoint end_pos);
     void startAnimation2();
     void startAnimation3();
+    void endAnimation3();
+    void endAnimation2();
+    void endAnimation1();
 
 protected:
     void paintEvent(QPaintEvent *) override;
@@ -59,6 +63,7 @@ private:
     int show_prop = 0; // 按钮出现 动画
     int expd_prop = 0; // 整体扩展、按钮背景撕开 动画（反弹）
     int icon_prop = 0; // 背景隐藏+按钮出现 动画
+    bool hiding = false;
 };
 
 #endif // JELLYBUTTONBOX_H

@@ -45,9 +45,16 @@ void JellyButtonBox::setButtons(QList<QIcon> icons, QList<QString> texts)
 
 void JellyButtonBox::exec(QPoint start_pos, QPoint end_pos)
 {
+    hiding = false;
     show();
     startAnimation1(start_pos, end_pos);
     setFocus();
+}
+
+void JellyButtonBox::toHide()
+{
+    hiding = true;
+    endAnimation3();
 }
 
 /**
@@ -80,7 +87,7 @@ void JellyButtonBox::startAnimation1(QPoint start_pos, QPoint end_pos)
 void JellyButtonBox::startAnimation2()
 {
     QRect rect(geometry().center().x() - total_width / 2, geometry().top(), total_width, height());
-    int dur = 600;
+    int dur = 500;
 
     QPropertyAnimation* geo_ani = new QPropertyAnimation(this, "geometry");
     geo_ani->setStartValue(geometry());
@@ -95,7 +102,7 @@ void JellyButtonBox::startAnimation2()
     step2_ani->setDuration(dur);
     step2_ani->start();
     connect(step2_ani, &QPropertyAnimation::valueChanged, this, [=](const QVariant& value){
-        if (value > 70 && icon_prop == 0)
+        if (value > 64 && icon_prop == 0)
         {
             icon_prop = 1;
             startAnimation3();
@@ -103,7 +110,6 @@ void JellyButtonBox::startAnimation2()
     });
     connect(step2_ani, &QPropertyAnimation::finished, this, [=]{
         expd_prop = 100;
-//        startAnimation3();
     });
 }
 
@@ -124,6 +130,60 @@ void JellyButtonBox::startAnimation3()
     {
         buttons.at(i)->show();
     }
+}
+
+void JellyButtonBox::endAnimation3()
+{
+    QPropertyAnimation* step3_ani = new QPropertyAnimation(this, "step3");
+    step3_ani->setStartValue(icon_prop);
+    step3_ani->setEndValue(0);
+    step3_ani->setDuration(270 * icon_prop / 100);
+    step3_ani->setEasingCurve(QEasingCurve::OutCirc);
+    step3_ani->start();
+    connect(step3_ani, &QPropertyAnimation::finished, this, [=]{
+        icon_prop = 0;
+        foreach (auto button, buttons)
+        {
+            button->hide();
+        }
+        endAnimation2();
+    });
+}
+
+void JellyButtonBox::endAnimation2()
+{
+    int rad = outer_radius+border_size;
+    QRect rect(geometry().center()-QPoint(rad, rad), QSize(rad*2,rad*2));
+    int dur = 350;
+
+    QPropertyAnimation* geo_ani = new QPropertyAnimation(this, "geometry");
+    geo_ani->setStartValue(geometry());
+    geo_ani->setEndValue(rect);
+    geo_ani->setEasingCurve(QEasingCurve::InBack);
+    geo_ani->setDuration(dur);
+    geo_ani->start();
+
+    QPropertyAnimation* step2_ani = new QPropertyAnimation(this, "step2");
+    step2_ani->setStartValue(expd_prop);
+    step2_ani->setEndValue(0);
+    step2_ani->setDuration(dur * expd_prop / 100);
+    step2_ani->start();
+    connect(step2_ani, &QPropertyAnimation::finished, this, [=]{
+        expd_prop = 100;
+        endAnimation1();
+    });
+}
+
+void JellyButtonBox::endAnimation1()
+{
+    QRect rect(geometry().center(), QSize(1,1));
+
+    QPropertyAnimation* geo_ani = new QPropertyAnimation(this, "geometry");
+    geo_ani->setStartValue(geometry());
+    geo_ani->setEndValue(rect);
+    geo_ani->setEasingCurve(QEasingCurve::OutBack);
+    geo_ani->setDuration(270);
+    geo_ani->start();
 }
 
 void JellyButtonBox::paintEvent(QPaintEvent *)
@@ -220,7 +280,7 @@ void JellyButtonBox::paintEvent(QPaintEvent *)
         fg_path.lineTo(mid.x(), mid.y()-radius);
 
         QColor c = fg_color;
-        c.setAlpha(qMax(c.alpha() * (100-icon_prop*6/5) / 100, 0));
+        c.setAlpha(qMax(c.alpha() * (100-icon_prop*4) / 100, 0));
         painter.fillPath(fg_path, c);
     }
     else if (icon_prop < 100) // 背景收缩，图标出现
@@ -236,7 +296,7 @@ void JellyButtonBox::paintEvent(QPaintEvent *)
         fg_path.addEllipse(right.x()-radius, right.y()-radius, radius*2, radius*2);
 
         QColor c = fg_color;
-        c.setAlpha(qMax(c.alpha() * (100-icon_prop*6/5) / 100, 0));
+        c.setAlpha(qMax(c.alpha() * (100-icon_prop*4) / 100, 0));
         painter.fillPath(fg_path, c);
     }
 
@@ -246,7 +306,7 @@ void JellyButtonBox::focusOutEvent(QFocusEvent *event)
 {
     QWidget::focusOutEvent(event);
 
-    close();
+    toHide();
 }
 
 void JellyButtonBox::setStep1(int p)
