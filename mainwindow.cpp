@@ -21,5 +21,5 @@ void MainWindow::on_pushButton_clicked()
     JellyButtonBox* jbb = new JellyButtonBox(this);
     QList<QPixmap> icons = {QPixmap(":/icons/icon1"), QPixmap(":/icons/icon2"), QPixmap(":/icons/icon3")};
     jbb->setButtons(icons);
-    jbb->exec(center, QPoint(center.x(), center.y()-40));
+    jbb->exec(center, QPoint(center.x(), center.y()-64));
 }

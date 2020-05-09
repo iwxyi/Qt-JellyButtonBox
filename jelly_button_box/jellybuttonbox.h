@@ -5,6 +5,7 @@
 #include <QWidget>
 #include <QPropertyAnimation>
 #include <cmath>
+#include <QGraphicsDropShadowEffect>
 #include "jellybutton.h"
 
 class JellyButtonBox : public QWidget
@@ -64,6 +65,7 @@ private:
     int border_size = 4; // 边界阴影最大处宽度
     int total_width = -1; // 控件真正的总宽度
     int qie_angle = 90; // 切线
+    QGraphicsDropShadowEffect* effect;
 
     int show_prop = 0; // 按钮出现 动画
     int expd_prop = 0; // 整体扩展、按钮背景撕开 动画（反弹）

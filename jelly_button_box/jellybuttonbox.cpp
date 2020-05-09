@@ -5,6 +5,12 @@ JellyButtonBox::JellyButtonBox(QWidget *parent) : QWidget(parent)
     setAttribute(Qt::WA_DeleteOnClose, true);
     setWindowFlag(Qt::FramelessWindowHint, true);
     setFocusPolicy(Qt::StrongFocus);
+
+    effect = new QGraphicsDropShadowEffect(this);
+    effect->setOffset(0,border_size);
+    effect->setColor(Qt::gray);
+    effect->setBlurRadius(btn_radius);
+    setGraphicsEffect(effect);
 }
 
 void JellyButtonBox::setColors(QColor bg, QColor fg)
